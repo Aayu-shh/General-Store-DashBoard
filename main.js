@@ -1,37 +1,126 @@
-myForm = document.querySelector('form');
-named = document.getElementById('name');
-description = document.getElementById('desc');
-price = document.getElementById('price')
-quantity = document.getElementById('quant');
-itemList = document.querySelector('.items');
+//Inputs 
+const name = document.querySelector('#name');
+const desc = document.querySelector('#desc');
+const price = document.querySelector('#price');
+const quantity = document.querySelector('#quant');
+//ul
+const itemList = document.querySelector(".items")
 
 
-myForm.onsubmit = async (e)=>{
+
+//-------OnSubmit 
+document.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const itemObj = { 
-        name : e.target.name.value,
-        description : description.value,
-        price: price.value,
-        quantity: quantity.value
+    try {
+
+        let itemObj = {
+            name: name.value,
+            description: desc.value,
+            price: price.value,
+            quantity: quantity.value
+        };
+
+        //Saving New item Details     
+        await axios.post(("http://localhost:8080/addItem"), itemObj);
+        let responseObj = axios.get("http://localhost:8080/items");
+        let id = responseObj.data[responseObj.data.length-1].id;
+
+        //console.log(responseObj);
+        displayOnWindow(itemObj, id);
     }
-    let buyOne = document.createElement('button');
-    buyOne.innerText = "BUY ONE";
-    let buyTwo = document.createElement('button');
-    buyTwo.innerText = "BUY TWO";
-    let buyThree = document.createElement('button');
-    buyThree.innerText = "BUY THREE";
-    let item = document.createElement('li');
+    catch (err) {
+        console.log(err);
+    }
+});
 
-    item.append(document.createTextNode(named.value + " : " + description.value + " : " + price.value + " : " + quantity.value))
-    item.append(buyOne);
-    item.append(buyTwo);
-    item.append(buyThree);
-    itemList.append(item);
-    
-    console.log("Deets: " + named.value + " " + description.value + " " + price.value + " " + quantity.value);
 
-    named.value="";
-    description.value ="";
-    price.value ="";
-    quantity.value="";
+//------On Refresh
+document.addEventListener("DOMContentLoaded", async (e) => {
+    e.preventDefault();
+    try {
+        let responseObj = await axios.get("http://localhost:8080/items")
+        console.log(responseObj.data);
+        displayOnLoad(responseObj.data);
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+function displayOnLoad(resp) {
+    resp.forEach((itemObj) => {
+        displayOnWindow(itemObj, itemObj.id);
+    })
 }
+
+function displayOnWindow(itemObj, id) {
+
+    let item = document.createElement("li");
+    item.append(
+        document.createTextNode(
+            `${itemObj.name}   -   ${itemObj.description}    -   ${itemObj.price}Rs  = >     `));
+
+    let quantityNode = document.createTextNode(itemObj.quantity)
+    item.appendChild(quantityNode);
+
+    buyOneBtn = document.createElement("button");
+    buyTwoBtn = document.createElement("button");
+    buyThreeBtn = document.createElement("button");
+
+    buyOneBtn.innerText = "Buy One"
+    buyTwoBtn.innerText = "Buy Two"
+    buyThreeBtn.innerText = "Buy Three"
+    item.append(buyOneBtn, buyTwoBtn, buyThreeBtn);
+    itemList.appendChild(item);
+
+    let localitemObj = {
+        price: itemObj.price,
+        quantity: itemObj.quantity,
+        name: itemObj.name,
+        description: itemObj.desccription
+    }
+
+    buyOneBtn.onclick = async () => {
+        if (localitemObj.quantity > 0) {
+
+            localitemObj.quantity--;
+            console.log("One item reduced for", localitemObj.name);
+            buyItem();
+        }
+        else {
+            item.append("          --- item Finished")
+        }
+    }
+    buyTwoBtn.onclick = async () => {
+        if (localitemObj.quantity > 1) {
+
+            localitemObj.quantity = localitemObj.quantity - 2;
+            console.log("Two item reduced for", localitemObj.name);
+            buyItem();
+        }
+        else {
+            item.append("          --- Not Enough item for the Order")
+        }
+
+    }
+    buyThreeBtn.onclick = async () => {
+        if (localitemObj.quantity > 2) {
+
+            localitemObj.quantity = localitemObj.quantity - 3;
+            console.log("Three item reduced for", localitemObj.name);
+            buyItem();
+        }
+        else {
+            item.append("          --- Not Enough item for the Order")
+        }
+
+    }
+
+    async function buyItem() {
+        let resp = await axios.post(`http://localhost:8080/editItem/${id}`, localitemObj);
+        item.removeChild(quantityNode);
+        quantityNode = document.createTextNode(`${localitemObj.quantity}`);
+        item.insertBefore(quantityNode, item.children[0]);
+    }
+}
+
