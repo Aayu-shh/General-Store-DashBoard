@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mysql2": "^3.4.2",
+    "nodemon": "^2.0.22",
+    "path": "^0.12.7",
+    "sequelize": "^6.32.1"
+  },
+  "name": "general-store-dashboard",
+  "description": "This project makes a basic Dashboard for General Store Owners to Track their inventory items.",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aayu-shh/General-Store-DashBoard.git"
+  },
+  "author": "Aayu-shh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aayu-shh/General-Store-DashBoard/issues"
+  },
+  "homepage": "https://github.com/Aayu-shh/General-Store-DashBoard#readme"
+}
